@@ -15,7 +15,7 @@ def saque(saldo, saida, contador, extrato_operacoes):
          saldo -= saida
          extrato_operacoes.append(f"Saque - R${saida:.2f}")
          print (f"Saldo atual - R${saldo:.2f}")
-         print(f"Você ainda pode realizar {3 - contador} saque(s) hoje.")
+         print(f"Você ainda pode realizar {2 - contador} saque(s) hoje.")
          return saldo
     else:
         print("Limite de saques diario foi excedido.")
