@@ -1,3 +1,57 @@
+# Validação simples do CPF
+def validar_cpf(numero_cpf):
+    return len(numero_cpf) == 11 and numero_cpf.isdigit()
+
+def cadastrar_usuario(usuarios):
+    cpf = {}
+    nome = input("Digite o nome do usuario:")
+    data_nascimento = input("Digite a data de nascimento do usuario:")
+    numero_cpf = input("Digite o cpf do usuario:")
+
+    while not validar_cpf(numero_cpf):
+        print("CPF inválido. Certifique-se de que contém 11 dígitos.")
+        numero_cpf = input("Digite o cpf do usuario:")
+
+    for usuario in usuarios:
+        if numero_cpf in usuario:
+            print(f"Erro: O CPF {numero_cpf} já está cadastrado.")
+            return  # Finaliza a função sem cadastrar um novo usuário
+
+    endereco = input("Digite o endereço do usuario:")
+    cpf[numero_cpf] = {'nome':nome, 'data_nascimento':data_nascimento, 'endereco':endereco}
+    usuarios.append(cpf)
+
+
+def criar_conta_corrente(usuarios, contador_contas, contas, agencia):
+    cpf_usuario = input("Digite o CPF para qual se deseja criar uma conta_corrente: ")
+    usuario_encontrado = None  # Inicializar variável para armazenar o usuário encontrado
+
+    # Procurando pelo usuário
+    for usuario in usuarios:
+        if cpf_usuario in usuario:
+            usuario_encontrado = usuario
+            break
+
+    # Caso o usuário seja encontrado
+    if usuario_encontrado:
+        print(f"Usuário portador do CPF: {cpf_usuario} encontrado com sucesso.")
+        contador_contas += 1
+        conta_corrente = f'{contador_contas} - {agencia}'
+
+        # Identificando um índice disponível para a conta-corrente
+        contador = 1
+        while f'conta_corrente {contador}' in usuario_encontrado[cpf_usuario]:
+            contador += 1
+
+        # Adicionando nova conta-corrente
+        usuario_encontrado[cpf_usuario][f'conta_corrente {contador}'] = conta_corrente
+        contas.append(conta_corrente)
+        print(f"Conta_corrente criada com sucesso: {conta_corrente}")
+        return contador_contas
+
+    else:
+        print(f"Usuário portador do CPF: {cpf_usuario} não encontrado.")
+
 
 def deposito(saldo, extrato_operacoes):
     valor_entrada = float(input("Digite o valor que deseja depositar R$:"))
@@ -6,8 +60,7 @@ def deposito(saldo, extrato_operacoes):
     print(f'Saldo atualizado - R${saldo:.2f}')
     return saldo
 
-
-def saque(saldo, saida, contador, extrato_operacoes):
+def saque(*, saldo, saida, contador, extrato_operacoes):
 
     if saldo < saida:
         print("Não será possível realizar o saque. Saldo insuficiente.")
@@ -21,19 +74,50 @@ def saque(saldo, saida, contador, extrato_operacoes):
         print("Limite de saques diario foi excedido.")
         return saldo
 
+def listar_contas(usuarios, agencia):
+    cpf_usuario = input("Digite o cpf do usuario:")
+    usuario_encontrado = None
+
+    for usuario in usuarios:
+        if cpf_usuario in usuario:
+            usuario_encontrado = usuario
+            break
+
+    print(usuario_encontrado)
+
+    if usuario_encontrado:
+        print(f"Contas do usuario com CPF {cpf_usuario}:")
+        for chave, valor in usuario_encontrado[cpf_usuario].items():
+            if 'conta_corrente' in chave:
+                print(f'''************\n
+                Agencia:{agencia}\n
+                Conta:{valor[0]}\n
+                Titular:{usuario_encontrado[cpf_usuario]['nome']}\n
+                ************''')
+    else:
+        print(f"Usuário com CPF {cpf_usuario} não encontrado.")
+
+
 
 def menu():
    print("******menu******\n"
-         "1 - deposito\n"
-         "2 - saque\n"
-         "3 - extrato\n"
-         "4 - sair\n"
+         "[1] - deposito\n"
+         "[2] - saque\n"
+         "[3] - extrato\n"
+         "[4] - cadastrar usuario\n"
+         "[5] - criar conta-corrente\n"
+         "[6] - listar contas\n"
+         "[7] - sair\n"
          "****************")
 
 def main():
+    agencia = '0001'
     saldo = 0
     contador = 0
+    contador_contas = 0
     extrato_operacoes = []
+    usuarios = []
+    contas = []
 
     while True:
 
@@ -48,7 +132,7 @@ def main():
             if saida > 500:
                 print("O valor do saque ultrapassa o limite de R$500.00 reais.")
             else:
-                saldo = saque(saldo, saida, contador, extrato_operacoes)
+                saldo = saque(saldo=saldo, saida=saida, contador=contador, extrato_operacoes=extrato_operacoes)
                 contador +=1
 
         elif opcao == '3':
@@ -62,6 +146,17 @@ def main():
                      f"*******************")
 
         elif opcao == '4':
+             cadastrar_usuario(usuarios)
+             print(usuarios)
+
+        elif opcao == '5':
+         contador_contas = criar_conta_corrente(usuarios, contador_contas, contas, agencia)
+
+
+        elif opcao == '6':
+            listar_contas(usuarios, agencia)
+
+        elif opcao == '7':
             print("Saindo do sistema...")
             break
 
@@ -70,19 +165,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
